@@ -8,11 +8,21 @@ const __dirname = path.resolve();
 const photoControllers = {}
 
 photoControllers.getAllPhotos = async (req, res) => {
-    const photos = await Photo.find({}).sort('-dateCreated')
-    console.log(path.resolve())
+
+    const page = req.query.page || 1
+    const photosPerPage = 2
+    const totalPhotos = await Photo.find().countDocuments()
+    console.log(totalPhotos)
+    const photos = await Photo.find({})
+        .sort('-dateCreated')
+        .skip((page-1)*photosPerPage)
+        .limit(photosPerPage)
     res.render('index', {
-        photos
+        photos: photos,
+        current: page,
+        pages: Math.ceil(totalPhotos/photosPerPage)
     })
+
 }
 photoControllers.getPhoto = async (req, res) => {
     console.log(req.params.id)
